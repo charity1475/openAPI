@@ -1,0 +1,148 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Rimborsi API
+  license:
+    name: VIZSAGE
+servers:
+  - url: http://rimborsi.spike.api/v1
+paths:
+  /login:
+    post:
+      summary: login to service and get sessionId
+      operationId: login
+      tags:
+        - login
+      description: |
+        ```php
+        include 'WSClient.php';
+        $cbconn = Vtiger_WSClient('your_url');
+        $login = $cbconn->doLogin($cbUserName, $cbAccessKey);
+        ```
+      parameters:
+        - name: username
+          in: query
+          description: user name to login with
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: codified password to login with, it must be the MD5 of the concatenation of user access key and challenge token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: returns operation status along with sessionId and user information
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/APILoginResponse"
+                  - $ref: "#/components/schemas/APIError"
+  /logout:
+    post:
+      summary: delete access token and logout of service
+      operationId: logout
+      tags:
+        - logout
+      description: |
+        ```php
+        include 'WSClient.php';
+        $cbconn = Vtiger_WSClient('your_url');
+        $login = $cbconn->doLogout();
+        ```
+      parameters:
+        - name: sessionId
+          in: query
+          description: sessionId access token
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: returns operation status and related information
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/APILogoutResponse"
+                  - $ref: "#/components/schemas/APIError"
+components:
+  schemas:
+    AccessToken:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+    APILoginResponse:
+      type: object
+      required:
+        - success
+        - result
+      properties:
+        success:
+          type: boolean
+          example: true
+        result:
+          type: object
+          properties:
+            sessionName:
+              type: string
+              example: "c4ad8d35e8caa5f69e0e"
+            userId:
+              type: string
+              example: "19x5"
+            version:
+              type: string
+              example: "0.22"
+            vtigerVersion:
+              type: string
+              example: "5.5.0"
+    APILogoutResponse:
+      type: object
+      required:
+        - success
+        - result
+      properties:
+        success:
+          type: boolean
+          example: true
+        result:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "successfull"
+    APIResponse:
+      type: object
+      required:
+        - success
+        - result
+      properties:
+        success:
+          type: boolean
+          example: true
+        result:
+          type: object
+    APIError:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int32
+            message:
+              type: string
+
