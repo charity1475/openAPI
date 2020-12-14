@@ -1,11 +1,12 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
   version: 1.0.0
-  title: Rimborsi API
+  title: Corebos API
+  description: 'coreBOS stands for core Business Operating System,a customizable CRM solution. coreBOS is a business empowering tool, an adaptable software program that will help your business accomplish it’s goals. It is a free and open source software application (licensed under VPL/MPL) that tries to help small and medium business handle all the day to day administration tasks and support the many difficult decisions that need to be made.'
   license:
     name: VIZSAGE
 servers:
-  - url: http://rimborsi.spike.api/v1
+  - url: 'http://corebos.spike.api/v1'
 paths:
   /login:
     post:
@@ -13,22 +14,19 @@ paths:
       operationId: login
       tags:
         - login
-      description: |
-        ```php
-        include 'WSClient.php';
-        $cbconn = Vtiger_WSClient('your_url');
-        $login = $cbconn->doLogin($cbUserName, $cbAccessKey);
-        ```
+      description: |-
+        Validate the user's access in the web service interface. The use of the getchallenge token is required.
+        Now that we have the challenge token we can proceed with the login step. For this we have to send the user name and a verification string. This verification string can be constructed in two ways
       parameters:
         - name: username
           in: query
-          description: user name to login with
-          required: true
+          description: name of the active coreBOS user that needs access
           schema:
             type: string
+          required: true
         - name: password
           in: query
-          description: codified password to login with, it must be the MD5 of the concatenation of user access key and challenge token
+          description: 'codified password to login with, it must be the MD5 of the concatenation of user access key and challenge token'
           required: true
           schema:
             type: string
@@ -39,8 +37,12 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/APILoginResponse"
-                  - $ref: "#/components/schemas/APIError"
+                  - $ref: '#/components/schemas/APILoginResponse'
+                  - $ref: '#/components/schemas/APIError'
+        '401':
+          description: 'Request failed, This is the response received when a request is made with invalid API credentials'
+        '403':
+          description: 'Request failed, This is the response received when a request is made with valid API credentials towards an API endpoint or resource you do not have access to.'
   /logout:
     post:
       summary: delete access token and logout of service
@@ -67,8 +69,656 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/APILogoutResponse"
-                  - $ref: "#/components/schemas/APIError"
+                  - $ref: '#/components/schemas/APILogoutResponse'
+                  - $ref: '#/components/schemas/APIError'
+  /retrieve:
+    get:
+      summary: Your GET endpoint
+      tags:
+        - retrieve
+      responses:
+        '200':
+          description: OK
+          headers: {}
+      operationId: get-retrieve
+      description: |-
+        Get all the values the user has access to, of an existent record in the application. Given a web service ID of a record this service will return an array with all the fields and their values.
+        All reference type fields which are pointing to another record will have valid web service IDs. 
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: 'id '
+          description: web service ID or cbuuid of the record we want to recover
+          required: true
+  /saveAttachment:
+    post:
+      summary: 'This is for saving attachment files, encoded in base64 '
+      operationId: post-saveAttachment
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  attachid:
+                    type: string
+                    description: After the attachment is added to the database the id is returned
+              examples:
+                example-1:
+                  value:
+                    attachid: string
+      description: Save the attachment file to the database
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: attachid
+          description: Attachment identity
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: filename
+          description: Attachment file name
+          required: true
+        - schema: {}
+          in: query
+          name: content
+          description: 'Attachment content,Base64 Encoded HTML5 Canvas image or similar coming from javascript'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+  /getcontextVariables:
+    get:
+      summary: Your login context variables in an active session
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cbURL:
+                    type: string
+                  cbUserName:
+                    type: string
+                  cbUserID:
+                    type: string
+                  cbAccessKey:
+                    type: string
+                  cbSessionID:
+                    type: string
+      operationId: get-getcontextVariables
+      description: 'This will give the context variables a user has loggedin with, url,user name, user Id,access key and session Id'
+  /createContact:
+    post:
+      summary: 'Creating a new contact using username, assigned userId and home phone'
+      operationId: post-createContact
+      responses:
+        '201':
+          description: Created
+      description: Adding a new contact.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              properties:
+                lastname:
+                  type: string
+                  minLength: 1
+                assigned_user_id:
+                  type: string
+                  minLength: 1
+                homephone:
+                  type: string
+                  minLength: 1
+              required:
+                - lastname
+                - assigned_user_id
+                - homephone
+        description: Form details to be filled.
+  createEvent:
+    parameters: []
+    post:
+      summary: creating an event to the appointment calendar
+      operationId: postcreateEvent
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  subject:
+                    type: string
+                    minLength: 1
+                  assigned_user_id:
+                    type: string
+                    minLength: 1
+                  date_start:
+                    type: string
+                    minLength: 1
+                  time_start:
+                    type: string
+                    minLength: 1
+                  due_date:
+                    type: string
+                    minLength: 1
+                  time_end:
+                    type: string
+                    minLength: 1
+                  recurringtype:
+                    type: string
+                    minLength: 1
+                  duration_hours:
+                    type: number
+                  eventstatus:
+                    type: string
+                    minLength: 1
+                  activitytype:
+                    type: string
+                    minLength: 1
+                  cf_605:
+                    type: string
+                    minLength: 1
+                  cf_606:
+                    type: number
+                  contact_id:
+                    type: string
+                    minLength: 1
+                required:
+                  - subject
+                  - assigned_user_id
+                  - date_start
+                  - time_start
+                  - due_date
+                  - time_end
+                  - recurringtype
+                  - duration_hours
+                  - eventstatus
+                  - activitytype
+                  - cf_605
+                  - cf_606
+                  - contact_id
+              examples:
+                example-1:
+                  value:
+                    success: false
+                    error:
+                      code: 0
+                      message: string
+            application/xml:
+              schema:
+                type: object
+                properties: {}
+            multipart/form-data:
+              schema:
+                type: object
+                properties: {}
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/APIResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIResponse'
+      description: 'Creating a new event, events categorized according to the module for which the entry has to be created.'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: sessionName
+          description: The sessionId given to a user.
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: operation
+          description: 'The name of operation to be performed, specifically create.'
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: element
+          description: The events details encoded in json object.
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: elementType
+          description: The module name or category in which the event belongs.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              example-1:
+                value: {}
+              example-2:
+                value: {}
+          application/xml:
+            schema:
+              type: object
+              properties: {}
+        description: 'This consist of operation name, an encoded json object with events details and the category of the event created.'
+  /createProduct:
+    post:
+      summary: ''
+      operationId: post-createProduct
+      responses:
+        '200':
+          description: OK
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+      description: This creates a new product in inventory.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cbURL:
+                  type: string
+                  description: Corebos url.
+                params:
+                  type: array
+                  description: An array containing the query parameters.
+                  items: {}
+                check:
+                  type: boolean
+              required:
+                - cbURL
+                - params
+                - check
+        description: 'Thi consist of corebos url, and the query parameters as an array.'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: sessionName
+          description: This is the sessionId of a user.
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: operation
+          description: 'Specific operation name, create.'
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: element
+          description: An encoded json object consisting of the Product details.
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: elementType
+          description: The specific module name in which the product belongs.
+          required: true
+  /getchallenge:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  token:
+                    type: string
+                    minLength: 1
+                  serverTime:
+                    type: string
+                    minLength: 1
+                  expireTime:
+                    type: string
+                    minLength: 1
+                required:
+                  - token
+                  - serverTime
+                  - expireTime
+        '202':
+          description: Accepted
+      operationId: getchallenge
+      description: get a challenge string to encode the password for login
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: userName
+          description: name of an active and valid user in coreBOS.
+          required: true
+    parameters: []
+  /create:
+    post:
+      summary: ''
+      operationId: create
+      responses:
+        '200':
+          description: OK
+      description: Creates a new record in the application.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: elementType
+          description: 'module name where we want to create the record '
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: element
+          description: ' map with all the field-value entries to save'
+          required: true
+  /update:
+    post:
+      summary: ''
+      operationId: update
+      responses:
+        '200':
+          description: OK
+        '201':
+          description: An object with all the information of the record.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      description: 'This service updates ALL the fields of a given record. Once again; ALL FIELDS. This endpoint does not support updating of individual fields, so, in many cases, updating becomes a two-step operation; first retrieve all the records, assign the new values leaving the others untouched and update the whole record'
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: element
+          description: record object with fields to update. It is mandatory to set the ID field in the Object and send in all fields
+  /delete:
+    post:
+      summary: ''
+      operationId: delete
+      responses:
+        '204':
+          description: operation succeeded.
+        '401':
+          description: Permission to perform the operation is denied.
+      description: Eliminate any record we have permission to delete.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: web service ID or cbuuid of the record we want to delete
+  /deleteUser:
+    post:
+      summary: ''
+      operationId: deleteUser
+      responses:
+        '204':
+          description: successful deleted a user
+        '401':
+          description: Permission denied.
+      description: Permits us to delete a user and transfer all his assigned records to another user.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: 'user web service ID that will be deleted '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: newOwnerId
+          required: true
+          description: user web service ID to transfer records to
+  /changePassword:
+    post:
+      summary: ''
+      operationId: changePassword
+      responses:
+        '201':
+          description: successful updated the password.
+      description: Permits a user to change his password or the password of another user if the connected user is an administrator.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: 'id '
+          description: 'user web service ID '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: oldPassword
+          description: 'The password to be changed, the recent password.'
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: newPassword
+          description: The new password to be added.
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: confirmPassword
+          description: The new password to be added
+          required: true
+  /addTicketFaqComment:
+    post:
+      summary: ''
+      operationId: addTicketFaqComment
+      responses:
+        '200':
+          description: OK
+      description: Function used to add comments to Tickets (HelpDesK) and Frequently Asked Questions (Faq).
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: web service id of the trouble ticket or faq to which we must attach the comment
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: values
+          description: |-
+            array with the parameters of the comment. these parameters can be:
+            'from_portal' 0 or 1: 0 = 'user', 1 = 'customer'
+            'parent_id' webservice id of the contact creating the comment from the portal
+            'comments' string, comment to add
+          required: true
+  /revise:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '201':
+          description: record's fields updated.
+      operationId: revise
+      description: 'Updating specific fields within a record, unlike update which update all field of a record. The fields to be updated are sent in an encoded array.'
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: element
+          description: A list of some fields of a record to be updated.
+          required: true
+    parameters: []
+  /MassCreate:
+    post:
+      summary: ''
+      operationId: MassCreate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_creates:
+                    type: array
+                    description: array of created Object.
+                    items: {}
+                  failed_creates:
+                    type: array
+                    description: array of Object that could not be created with their error message.
+                    items: {}
+        '201':
+          description: Records created.
+        '400':
+          description: Bad Request
+      description: 'The Mass Create elements structure is an intelligent layout that permits us not only to create many records in one call but also to establish relationships among the different records. '
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: elements
+          description: 'an array of Object to create, Each element of the array represents a record to be created. It contains an elementType so we know what module to create the record in, a referenceId that identifies the record inside the structure, and a field-value Object with the fields of the new record. '
+          required: true
+  /MassRetrieve:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: An array containing objects of the retrieved records.
+                items: {}
+              examples:
+                example-1:
+                  value:
+                    - null
+      operationId: MassRetrieve
+      description: Retrieve a set of records at once reducing the number of calls to an API.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: ids
+          description: 'a comma-separated string of web service ID of the records to retrieve '
+          required: true
+  /MassUpdate:
+    post:
+      summary: ''
+      operationId: MassUpdate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_updates:
+                    type: array
+                    description: array of updated IDs .
+                    items: {}
+                  failed_updates:
+                    type: array
+                    description: array of IDs that could not be updated with their error message.
+                    items: {}
+        '201':
+          description: Records updated
+      description: Update a set of records at once.
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: elements
+          description: 'an array of Object to update, each one must contain the web service ID of the record to update and the field-value list of fields to update.'
+  /MassDelete:
+    post:
+      summary: ''
+      operationId: MassDelete
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success_deletes:
+                    type: array
+                    description: array of deleted IDs.
+                    items: {}
+                  failed_deletes:
+                    type: array
+                    description: array of IDs that could not be deleted with their error message.
+                    items: {}
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  '':
+                    type: string
+      description: Delete a set of records at once.
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: ids
+          description: comma-separated list of web service IDs to delete
+  /ValidateInformation:
+    post:
+      summary: ''
+      operationId: ValidateInformation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+                description: If false is returned the result will contain an array wit all the validations that have failed
+        '201':
+          description: Created
+      description: Apply application configured validations on a set of fields.
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: ' context'
+          description: an Object with the field-value pairs to validate. Either a “module” or a “record” entry must exist in the object. If “record” is given the validations will be evaluated with the fields of the record.
+          required: true
 components:
   schemas:
     AccessToken:
@@ -92,16 +742,16 @@ components:
           properties:
             sessionName:
               type: string
-              example: "c4ad8d35e8caa5f69e0e"
+              example: c4ad8d35e8caa5f69e0e
             userId:
               type: string
-              example: "19x5"
+              example: 19x5
             version:
               type: string
-              example: "0.22"
+              example: '0.22'
             vtigerVersion:
               type: string
-              example: "5.5.0"
+              example: 5.5.0
     APILogoutResponse:
       type: object
       required:
@@ -116,7 +766,7 @@ components:
           properties:
             message:
               type: string
-              example: "successfull"
+              example: successfull
     APIResponse:
       type: object
       required:
@@ -145,4 +795,3 @@ components:
               format: int32
             message:
               type: string
-
