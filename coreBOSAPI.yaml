@@ -4,7 +4,7 @@ info:
   title: Corebos API
   description: 'coreBOS stands for core Business Operating System,a customizable CRM solution. coreBOS is a business empowering tool, an adaptable software program that will help your business accomplish it’s goals. It is a free and open source software application (licensed under VPL/MPL) that tries to help small and medium business handle all the day to day administration tasks and support the many difficult decisions that need to be made.'
   license:
-    name: VIZSAGE
+    name: VPL
 servers:
   - url: 'http://corebos.spike.api/v1'
 paths:
@@ -90,295 +90,6 @@ paths:
           in: query
           name: 'id '
           description: web service ID or cbuuid of the record we want to recover
-          required: true
-  /saveAttachment:
-    post:
-      summary: 'This is for saving attachment files, encoded in base64 '
-      operationId: post-saveAttachment
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  attachid:
-                    type: string
-                    description: After the attachment is added to the database the id is returned
-              examples:
-                example-1:
-                  value:
-                    attachid: string
-      description: Save the attachment file to the database
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: attachid
-          description: Attachment identity
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: filename
-          description: Attachment file name
-          required: true
-        - schema: {}
-          in: query
-          name: content
-          description: 'Attachment content,Base64 Encoded HTML5 Canvas image or similar coming from javascript'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties: {}
-  /getcontextVariables:
-    get:
-      summary: Your login context variables in an active session
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  cbURL:
-                    type: string
-                  cbUserName:
-                    type: string
-                  cbUserID:
-                    type: string
-                  cbAccessKey:
-                    type: string
-                  cbSessionID:
-                    type: string
-      operationId: get-getcontextVariables
-      description: 'This will give the context variables a user has loggedin with, url,user name, user Id,access key and session Id'
-  /createContact:
-    post:
-      summary: 'Creating a new contact using username, assigned userId and home phone'
-      operationId: post-createContact
-      responses:
-        '201':
-          description: Created
-      description: Adding a new contact.
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: ''
-              type: object
-              properties:
-                lastname:
-                  type: string
-                  minLength: 1
-                assigned_user_id:
-                  type: string
-                  minLength: 1
-                homephone:
-                  type: string
-                  minLength: 1
-              required:
-                - lastname
-                - assigned_user_id
-                - homephone
-        description: Form details to be filled.
-  createEvent:
-    parameters: []
-    post:
-      summary: creating an event to the appointment calendar
-      operationId: postcreateEvent
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                description: ''
-                type: object
-                properties:
-                  subject:
-                    type: string
-                    minLength: 1
-                  assigned_user_id:
-                    type: string
-                    minLength: 1
-                  date_start:
-                    type: string
-                    minLength: 1
-                  time_start:
-                    type: string
-                    minLength: 1
-                  due_date:
-                    type: string
-                    minLength: 1
-                  time_end:
-                    type: string
-                    minLength: 1
-                  recurringtype:
-                    type: string
-                    minLength: 1
-                  duration_hours:
-                    type: number
-                  eventstatus:
-                    type: string
-                    minLength: 1
-                  activitytype:
-                    type: string
-                    minLength: 1
-                  cf_605:
-                    type: string
-                    minLength: 1
-                  cf_606:
-                    type: number
-                  contact_id:
-                    type: string
-                    minLength: 1
-                required:
-                  - subject
-                  - assigned_user_id
-                  - date_start
-                  - time_start
-                  - due_date
-                  - time_end
-                  - recurringtype
-                  - duration_hours
-                  - eventstatus
-                  - activitytype
-                  - cf_605
-                  - cf_606
-                  - contact_id
-              examples:
-                example-1:
-                  value:
-                    success: false
-                    error:
-                      code: 0
-                      message: string
-            application/xml:
-              schema:
-                type: object
-                properties: {}
-            multipart/form-data:
-              schema:
-                type: object
-                properties: {}
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIResponse'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/APIResponse'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/APIResponse'
-      description: 'Creating a new event, events categorized according to the module for which the entry has to be created.'
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: sessionName
-          description: The sessionId given to a user.
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: operation
-          description: 'The name of operation to be performed, specifically create.'
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: element
-          description: The events details encoded in json object.
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: elementType
-          description: The module name or category in which the event belongs.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-            examples:
-              example-1:
-                value: {}
-              example-2:
-                value: {}
-          application/xml:
-            schema:
-              type: object
-              properties: {}
-        description: 'This consist of operation name, an encoded json object with events details and the category of the event created.'
-  /createProduct:
-    post:
-      summary: ''
-      operationId: post-createProduct
-      responses:
-        '200':
-          description: OK
-        '201':
-          description: Created
-        '400':
-          description: Bad Request
-      description: This creates a new product in inventory.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                cbURL:
-                  type: string
-                  description: Corebos url.
-                params:
-                  type: array
-                  description: An array containing the query parameters.
-                  items: {}
-                check:
-                  type: boolean
-              required:
-                - cbURL
-                - params
-                - check
-        description: 'Thi consist of corebos url, and the query parameters as an array.'
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: sessionName
-          description: This is the sessionId of a user.
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: operation
-          description: 'Specific operation name, create.'
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: element
-          description: An encoded json object consisting of the Product details.
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: elementType
-          description: The specific module name in which the product belongs.
           required: true
   /getchallenge:
     get:
@@ -718,6 +429,2083 @@ paths:
           in: query
           name: ' context'
           description: an Object with the field-value pairs to validate. Either a “module” or a “record” entry must exist in the object. If “record” is given the validations will be evaluated with the fields of the record.
+          required: true
+  /upsert:
+    post:
+      summary: ''
+      operationId: upsert
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  salutationtype:
+                    type: string
+                  firstname:
+                    type: string
+                    minLength: 1
+                  contact_no:
+                    type: string
+                    minLength: 1
+                  lastname:
+                    type: string
+                    minLength: 1
+                  phone:
+                    type: string
+                  account_id:
+                    type: string
+                  mobile:
+                    type: string
+                    minLength: 1
+                  leadsource:
+                    type: string
+                  homephone:
+                    type: string
+                  title:
+                    type: string
+                  otherphone:
+                    type: string
+                  department:
+                    type: string
+                  fax:
+                    type: string
+                  email:
+                    type: string
+                    minLength: 1
+                  birthday:
+                    type: string
+                  assistant:
+                    type: string
+                    minLength: 1
+                  contact_id:
+                    type: string
+                  assistantphone:
+                    type: string
+                  secondaryemail:
+                    type: string
+                  emailoptout:
+                    type: string
+                    minLength: 1
+                  donotcall:
+                    type: string
+                    minLength: 1
+                  reference:
+                    type: string
+                    minLength: 1
+                  assigned_user_id:
+                    type: string
+                    minLength: 1
+                  createdtime:
+                    type: string
+                    minLength: 1
+                  notify_owner:
+                    type: string
+                    minLength: 1
+                  modifiedtime:
+                    type: string
+                    minLength: 1
+                  modifiedby:
+                    type: string
+                    minLength: 1
+                  isconvertedfromlead:
+                    type: string
+                  convertedfromlead:
+                    type: string
+                  created_user_id:
+                    type: string
+                    minLength: 1
+                  template_language:
+                    type: string
+                  portal:
+                    type: string
+                    minLength: 1
+                  support_start_date:
+                    type: string
+                  support_end_date:
+                    type: string
+                  mailingstreet:
+                    type: string
+                  otherstreet:
+                    type: string
+                  mailingpobox:
+                    type: string
+                  otherpobox:
+                    type: string
+                  mailingcity:
+                    type: string
+                  othercity:
+                    type: string
+                  mailingstate:
+                    type: string
+                  otherstate:
+                    type: string
+                  mailingzip:
+                    type: string
+                  otherzip:
+                    type: string
+                  mailingcountry:
+                    type: string
+                  othercountry:
+                    type: string
+                  description:
+                    type: string
+                  imagename:
+                    type: string
+                  id:
+                    type: string
+                    minLength: 1
+                  cbuuid:
+                    type: string
+                    minLength: 1
+                required:
+                  - salutationtype
+                  - firstname
+                  - contact_no
+                  - lastname
+                  - phone
+                  - account_id
+                  - mobile
+                  - leadsource
+                  - homephone
+                  - title
+                  - otherphone
+                  - department
+                  - fax
+                  - email
+                  - birthday
+                  - assistant
+                  - contact_id
+                  - assistantphone
+                  - secondaryemail
+                  - emailoptout
+                  - donotcall
+                  - reference
+                  - assigned_user_id
+                  - createdtime
+                  - notify_owner
+                  - modifiedtime
+                  - modifiedby
+                  - isconvertedfromlead
+                  - convertedfromlead
+                  - created_user_id
+                  - template_language
+                  - portal
+                  - support_start_date
+                  - support_end_date
+                  - mailingstreet
+                  - otherstreet
+                  - mailingpobox
+                  - otherpobox
+                  - mailingcity
+                  - othercity
+                  - mailingstate
+                  - otherstate
+                  - mailingzip
+                  - otherzip
+                  - mailingcountry
+                  - othercountry
+                  - description
+                  - imagename
+                  - id
+                  - cbuuid
+              examples:
+                example-1:
+                  value:
+                    salutationtype: string
+                    firstname: string
+                    contact_no: string
+                    lastname: string
+                    phone: string
+                    account_id: string
+                    mobile: string
+                    leadsource: string
+                    homephone: string
+                    title: string
+                    otherphone: string
+                    department: string
+                    fax: string
+                    email: string
+                    birthday: string
+                    assistant: string
+                    contact_id: string
+                    assistantphone: string
+                    secondaryemail: string
+                    emailoptout: string
+                    donotcall: string
+                    reference: string
+                    assigned_user_id: string
+                    createdtime: string
+                    notify_owner: string
+                    modifiedtime: string
+                    modifiedby: string
+                    isconvertedfromlead: string
+                    convertedfromlead: string
+                    created_user_id: string
+                    template_language: string
+                    portal: string
+                    support_start_date: string
+                    support_end_date: string
+                    mailingstreet: string
+                    otherstreet: string
+                    mailingpobox: string
+                    otherpobox: string
+                    mailingcity: string
+                    othercity: string
+                    mailingstate: string
+                    otherstate: string
+                    mailingzip: string
+                    otherzip: string
+                    mailingcountry: string
+                    othercountry: string
+                    description: string
+                    imagename: string
+                    id: string
+                    cbuuid: string
+      description: 'The upsert method will permit us to execute a search on some fields in a module, if we find a record that matches the search we will update it with the given values, if no record can be found we will create a new one with the given values. So it is a Search and Update or Create in one call. '
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: elementType
+          description: module name where we search and operate
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: ' element'
+          description: record object with fields to update/create
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: searchOn
+          description: 'comma-separated list of fields to search on, the values will be obtained from element '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: updatedfields
+          description: 'comma-separated list of fields to update if the record is found, the values will be obtained from element'
+          required: true
+  /SetRelation:
+    post:
+      summary: ''
+      operationId: SetRelation
+      responses:
+        '204':
+          description: No Content
+      description: |-
+        coreBOS API supports defining 1:N and N:N relations between modules.
+        By setting a value in a foreign key (relation field or uitype 10) we establish a direct relationship between two modules.
+        The Create and Update operations also support a virtual meta-field named relations which contains an array of web service IDs with which we want to relate the record being created or updated.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: relateThisId
+          description: 'web service ID of the main record to relate '
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: withTheseIds
+          description: array of web service IDs to relate to the main record
+          required: true
+  /UnsetRelation:
+    post:
+      summary: ''
+      operationId: UnsetRelation
+      responses:
+        '204':
+          description: No Content
+      description: Deletes relations between one record and a set of other records.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: unrelateThisId
+          description: 'web service ID of the main record to unrelate '
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: withTheseIds
+          description: array of web service IDs to unrelate from the main record
+          required: true
+  /listtypes:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  types:
+                    type: array
+                    items:
+                      required: []
+                      properties: {}
+                  information:
+                    type: object
+                    properties:
+                      Campaigns:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Vendors:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Faq:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Quotes:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      PurchaseOrder:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      SalesOrder:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Invoice:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      PriceBooks:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Leads:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Accounts:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Contacts:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Potentials:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Products:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Documents:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Emails:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      HelpDesk:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Users:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      PBXManager:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      ServiceContracts:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Services:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbupdater:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      ModComments:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      GlobalVariable:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      InventoryDetails:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbMap:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbTermConditions:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbCalendar:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbtranslation:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      BusinessActions:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbSurvey:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbSurveyQuestion:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbSurveyDone:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbSurveyAnswer:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbCompany:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbCVManagement:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbQuestion:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      ProductComponent:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Messages:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      cbPulse:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      MsgTemplate:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Groups:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Currency:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      DocumentFolders:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      CompanyDetails:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      Workflow:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      AuditTrail:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                      LoginHistory:
+                        type: object
+                        properties:
+                          isEntity:
+                            type: boolean
+                          label:
+                            type: string
+                            minLength: 1
+                          singular:
+                            type: string
+                            minLength: 1
+                        required:
+                          - isEntity
+                          - label
+                          - singular
+                    required:
+                      - Campaigns
+                      - Vendors
+                      - Faq
+                      - Quotes
+                      - PurchaseOrder
+                      - SalesOrder
+                      - Invoice
+                      - PriceBooks
+                      - Leads
+                      - Accounts
+                      - Contacts
+                      - Potentials
+                      - Products
+                      - Documents
+                      - Emails
+                      - HelpDesk
+                      - Users
+                      - PBXManager
+                      - ServiceContracts
+                      - Services
+                      - cbupdater
+                      - ModComments
+                      - GlobalVariable
+                      - InventoryDetails
+                      - cbMap
+                      - cbTermConditions
+                      - cbCalendar
+                      - cbtranslation
+                      - BusinessActions
+                      - cbSurvey
+                      - cbSurveyQuestion
+                      - cbSurveyDone
+                      - cbSurveyAnswer
+                      - cbCompany
+                      - cbCVManagement
+                      - cbQuestion
+                      - ProductComponent
+                      - Messages
+                      - cbPulse
+                      - MsgTemplate
+                      - Groups
+                      - Currency
+                      - DocumentFolders
+                      - CompanyDetails
+                      - Workflow
+                      - AuditTrail
+                      - LoginHistory
+                required:
+                  - types
+                  - information
+              examples:
+                example-1:
+                  value:
+                    types:
+                      - {}
+                    information:
+                      Campaigns:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Vendors:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Faq:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Quotes:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      PurchaseOrder:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      SalesOrder:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Invoice:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      PriceBooks:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Leads:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Accounts:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Contacts:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Potentials:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Products:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Documents:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Emails:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      HelpDesk:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Users:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      PBXManager:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      ServiceContracts:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Services:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbupdater:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      ModComments:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      GlobalVariable:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      InventoryDetails:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbMap:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbTermConditions:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbCalendar:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbtranslation:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      BusinessActions:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbSurvey:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbSurveyQuestion:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbSurveyDone:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbSurveyAnswer:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbCompany:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbCVManagement:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbQuestion:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      ProductComponent:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Messages:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      cbPulse:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      MsgTemplate:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Groups:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Currency:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      DocumentFolders:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      CompanyDetails:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      Workflow:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      AuditTrail:
+                        isEntity: true
+                        label: string
+                        singular: string
+                      LoginHistory:
+                        isEntity: true
+                        label: string
+                        singular: string
+      operationId: listtypes
+      description: Returns a list of module names the currently connected user has access to.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fieldTypeList
+          description: comma-separated list of field types the modules must have. Is optional.
+          required: true
+  /describe:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: describe
+      description: The Describe service gives us detailed information about the module which we are trying to access. It will inform us both of the types of actions permitted and all the information of the fields which we have access to.Returns metadata of a list of module names.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: elementType
+          description: comma-separated list of modules which we want more detailed information.
+          required: true
+  /doCreate:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses: {}
+      operationId: get-doCreate
+  /getfilterfields:
+    post:
+      summary: ''
+      operationId: getfilterfields
+      responses:
+        '200':
+          description: OK
+      description: Retrieve the default list of fields to show in a list view along with the link field and pagesize.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: module name to get the fields for.
+          required: true
+  /getViewsByModule:
+    post:
+      summary: ''
+      operationId: getViewsByModule
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  filters:
+                    type: object
+                    properties:
+                      '7':
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            minLength: 1
+                          status:
+                            type: string
+                            minLength: 1
+                          advcriteria:
+                            type: string
+                            minLength: 1
+                          advcriteriaWQL:
+                            type: string
+                          advcriteriaEVQL:
+                            type: string
+                          stdcriteria:
+                            type: string
+                            minLength: 1
+                          stdcriteriaWQL:
+                            type: string
+                          stdcriteriaEVQL:
+                            type: string
+                          fields:
+                            type: array
+                            items:
+                              required: []
+                              properties: {}
+                          default:
+                            type: boolean
+                        required:
+                          - name
+                          - status
+                          - advcriteria
+                          - advcriteriaWQL
+                          - advcriteriaEVQL
+                          - stdcriteria
+                          - stdcriteriaWQL
+                          - stdcriteriaEVQL
+                          - fields
+                          - default
+                    required:
+                      - '7'
+                  linkfields:
+                    type: array
+                    items:
+                      required: []
+                      properties: {}
+                  pagesize:
+                    type: number
+                required:
+                  - filters
+                  - linkfields
+                  - pagesize
+      description: 'Retrieve a list of available filters on a module with all the available information of each: fields, conditions, default, and also the link field and page size. This method is similar to getFiltersByModule being the difference one property (HTML output) and that this method applies permission based on the coreBOS Custom View Management module.'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: module name to get the filters for.
+          required: true
+  /getFiltersByModule:
+    post:
+      summary: ''
+      operationId: getFiltersByModule
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  map:
+                    type: array
+                    description: A map object with a list of the filters in HTML and array format and the link fields
+                    items: {}
+      description: 'Retrieve a list of available filters on a module with all the available information of each: fields, conditions, default, and also the link field and page size. This method is similar to getViewsByModule being the difference one property (HTML output) and that this method applies permission based on the Custom View Management (filters, public, and approve).'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: module name to get the filters for
+          required: true
+  /getPortalUserInfo:
+    post:
+      summary: ''
+      operationId: getPortalUserInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  date_format:
+                    type: string
+                    minLength: 1
+                  first_name:
+                    type: string
+                    minLength: 1
+                  last_name:
+                    type: string
+                    minLength: 1
+                  email1:
+                    type: string
+                    minLength: 1
+                  id:
+                    type: string
+                    minLength: 1
+                  is_admin:
+                    type: boolean
+                  roleid:
+                    type: string
+                    minLength: 1
+                  rolename:
+                    type: string
+                    minLength: 1
+                  language:
+                    type: string
+                    minLength: 1
+                  currency_grouping_pattern:
+                    type: string
+                    minLength: 1
+                  currency_decimal_separator:
+                    type: string
+                    minLength: 1
+                  currency_grouping_separator:
+                    type: string
+                    minLength: 1
+                  currency_symbol_placement:
+                    type: string
+                    minLength: 1
+                required:
+                  - date_format
+                  - first_name
+                  - last_name
+                  - email1
+                  - id
+                  - is_admin
+                  - roleid
+                  - rolename
+                  - language
+                  - currency_grouping_pattern
+                  - currency_decimal_separator
+                  - currency_grouping_separator
+                  - currency_symbol_placement
+      description: Retrieve a list of available fields for the connected user.
+  /getPortalUserDateFormat:
+    post:
+      summary: ''
+      operationId: getPortalUserDateFormat
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date_format:
+                    type: string
+                    description: if none is set ISO (yyyy-mm-dd) will be returned
+      description: Retrieve the date format of the connected user.
+  /getAllUsers:
+    post:
+      summary: ''
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - user_id
+                  properties:
+                    user_id:
+                      type: string
+                      minLength: 1
+              examples:
+                example-1:
+                  value:
+                    - user_id: string
+      description: Retrieve a list of all existing users names.
+  /getAssignedUserList:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - userid
+                    - username
+                  properties:
+                    userid:
+                      type: string
+                      minLength: 1
+                    username:
+                      type: string
+                      minLength: 1
+      operationId: getAssignedUserList
+      description: Retrieve a list of all users with access to a module.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: module name to get the users for
+          required: true
+  /getUsersInSameGroup:
+    post:
+      summary: ''
+      operationId: getUsersInSameGroup
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: array user names of all the users in the groups that this user is part of indexed by their ID.
+                items: {}
+              examples:
+                example-1:
+                  value:
+                    - null
+      description: return all the users in the groups that the given user is part of.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: 'userid to get the group users for. Note: application ID not web service ID'
+          required: true
+  /getRelatedModulesManytoOne:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: 'An array of module information which contains: name, label, field'
+                items: {}
+              examples:
+                example-1:
+                  value:
+                    - admin
+                    - label
+                    - field
+      operationId: getRelatedModulesManytoOne
+      description: 'Returns an array of metadata information about the modules related to the given module in N:1 mode.'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: main module for which we want to know the list of related modules.
+          required: true
+  /getRelatedModulesInfomation:
+    post:
+      summary: ''
+      operationId: getRelatedModulesInfomation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: The information returned with this function is present in the Describe response.
+                items: {}
+      description: Returns an array of metadata information about the modules related to the given module.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: main module for which we want to know the list of related modules.
+  /getReferenceValue:
+    get:
+      summary: ''
+      operationId: getReferenceValue
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: The information returned with this function is equivalent to the “ename” virtual fields returned by Retrieve.
+                items: {}
+      description: convert web service IDs into their entity names.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: PHP serialzed array of web service IDs to convert.
+          required: true
+  /getModulePermissionQuery:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: |-
+                  A map with these three entries:
+                  ⇒ permissonTable: if a temporary table is required this will contain it's name
+                  ⇒ permissionQuery: full permission query
+                  ⇒ permissionJoin: only the join conditions of the query
+                items: {}
+      operationId: getModulePermissionQuery
+      description: returns SQL query restrictions that must be applied to enforce application permissions. This is used to generate external SQL reports with tools like SuperSet or Metabase while applying the same rules configured inside the application.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: name of the module for which we want to retrieve the restrictions.
+          required: true
+  /getPicklistValues:
+    post:
+      summary: ''
+      operationId: getPicklistValues
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: A map of picklist fields and all their values.
+                items: {}
+      description: get picklist fields for the given module and all their possible values.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: 'module '
+          required: true
+          description: name of the module for which we want to retrieve the picklist values.
+  /getEntityNum:
+    post:
+      summary: ''
+      operationId: getEntityNum
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: A map of auto numeric prefixes with module names as key.
+                items: {}
+      description: get the auto numeric field prefixes of all modules with a uitype 4 field.
+      parameters: []
+  /gettranslation:
+    post:
+      summary: ''
+      operationId: gettranslation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  Accounts:
+                    type: string
+                    minLength: 1
+                  LBL_LIST_ACCOUNT_NAME:
+                    type: string
+                    minLength: 1
+                  Portal User:
+                    type: string
+                    minLength: 1
+                required:
+                  - Accounts
+                  - LBL_LIST_ACCOUNT_NAME
+                  - Portal User
+      description: This method permits us to use the translations in the application in our frontend application.
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: totranslate
+          description: 'Object with the keys to translate, the value will be ignored if a translation exists or returned if no translation exists '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: language
+          required: true
+          description: 'a valid application language identifier (e.g. es_es) '
+        - schema:
+            type: string
+          in: query
+          description: module to start the translations from
+          required: true
+          name: module
+  /jsLog:
+    post:
+      summary: ''
+      operationId: jsLog
+      responses:
+        '200':
+          description: OK
+      description: 'The jsLog endpoint permits us to send any message from javascript to our coreBOS backend. If we activate the javascript logging section we will be able to send messages from javascript to our logs directory for tracing. '
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: level
+          description: 'log4php logging level '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: ' message'
+          description: the string to write in the log if the given level is matched
+          required: true
+  /sync:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  updated:
+                    type: array
+                    items:
+                      required: []
+                      properties: {}
+                  deleted:
+                    type: array
+                    items:
+                      required: []
+                      properties: {}
+                  more:
+                    type: boolean
+                  lastModifiedTime:
+                    type: number
+                required:
+                  - updated
+                  - deleted
+                  - more
+                  - lastModifiedTime
+      operationId: sync
+      description: 'The sync service returns the complete set of changes that occurred to all records assigned to the connected user from a given date and time.Returns a SyncResult object which contains all the changes that occurred in the application since the parameter modifiedTime to records assigned to the connected user. Optionally, if the connected user is an administrator he can ask for all changes in the application disregarding who the records are assigned to.'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          description: 'timestamp of last synchronization '
+          required: true
+          name: ' modifiedTime'
+        - schema:
+            type: string
+          in: query
+          name: elementType
+          description: 'optional parameter, name of the module we want to get the changes for, if not set all records affected in all modules will be returned '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: syncType
+          description: 'a string which can be empty or contain the value ''application''. If it is ''application'' and the connected user is an administrator, all changes to the application will be returned.'
+          required: true
+  /getRecordImages:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: 'an array with name, path, URL, type, internal ID for each file in the record.'
+                items: {}
+      operationId: getRecordImages
+      description: 'getRecordImages allows a web service client to retrieve the information of the image attachments associated with a record, which can then be used with the build/HelperScripts/getImageData.php script to obtain the image data itself. '
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: web service id of the record with image fields we want to get.
+          required: true
+  /addProductImages:
+    post:
+      summary: ''
+      operationId: addProductImages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: an array with information of the executed operations.
+                items: {}
+      description: Inserts a set of images into the Product multi-image field.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: 'id '
+          description: 'web service ID of the product record to upload the images to '
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: files
+          description: 'an array of images to upload, each array entry must contain two fields: name and content (base64 encoded'
+          required: true
+  /getFieldAutocomplete:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: 'Map of records found, indexed by their CRMID with the value of a Map of the returnfields fields.'
+                items: {}
+      operationId: getFieldAutocomplete
+      description: Executes a search in the list of fields of a module for the given term with the selected operator.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: term
+          description: search term
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: filter
+          description: 'operator to use: eq, neq, startswith, endswith, contains '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: searchinmodule
+          description: 'valid module to search in '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: fields
+          description: comma-separated list of fields to search in .
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: returnfields
+          description: 'comma-separated list of fields to return as result, if empty fields will be returned'
+          required: true
+        - schema:
+            type: number
+          in: query
+          name: limit
+          description: maximum number of values to return
+          required: true
+  /getReferenceAutocomplete:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    crmid:
+                      type: string
+                      minLength: 1
+                      description: ID of the record .
+                    crmname:
+                      type: string
+                      minLength: 1
+                      description: entity name of the module followed by the module name.
+                    crmmodule:
+                      type: string
+                      minLength: 1
+                      description: module the record belongs to.
+                  required:
+                    - crmid
+                    - crmname
+                    - crmmodule
+      operationId: getReferenceAutocomplete
+      description: Executes a search in the entity fields of the given modules for the given term with the selected operator.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: term
+          description: 'search term '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: filter
+          description: 'operator to use: eq, neq, startswith, endswith, contains .'
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: searchinmodules
+          description: comma-separated list of modules to search in.
+          required: true
+        - schema:
+            type: number
+          in: query
+          name: limit
+          description: maximum number of values to return.
+          required: true
+  /getRelatedRecordsThroughModule:
+    post:
+      summary: ''
+      operationId: getRelatedRecordsThroughModule
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required: []
+                  properties: {}
+      description: ' In some use cases, it is useful to be able to get a list of records related at a second level. For example, we want to get a list of project tasks related to an account going through the Projects related to the account.Returns a list of Object records related to the given record passing through another related module.'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: 'web service ID of the main record '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: module
+          description: module of the record in ID .
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: relatedModule
+          description: 'second level related module name we want to get the records from '
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: bridgeModule
+          description: direct related module name that connects the ID with the related module
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: queryParameters
+          description: ' additional parameters supported by the getRelatedRecords method'
+          required: true
+  /convertlead:
+    post:
+      summary: ''
+      operationId: convertlead
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array with all the information of the new objects created.
+                items: {}
+      description: 'Permits the conversion of a lead into an account, contact and potential. This service is used by the application itself when converting leads.'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: "$entityvalues is an array, Parameters:\t   id: $entityvalues is an array. Consult the modules/Leads/LeadConvertToEntities.php to see an example."
           required: true
 components:
   schemas:
