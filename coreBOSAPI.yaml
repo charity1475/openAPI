@@ -39,6 +39,15 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/APILoginResponse'
                   - $ref: '#/components/schemas/APIError'
+              examples:
+                example-1:
+                  value:
+                    success: true
+                    result:
+                      sessionName: c4ad8d35e8caa5f69e0e
+                      userId: 19x5
+                      version: '0.22'
+                      vtigerVersion: 5.5.0
         '401':
           description: 'Request failed, This is the response received when a request is made with invalid API credentials'
         '403':
@@ -50,11 +59,7 @@ paths:
       tags:
         - logout
       description: |
-        ```php
-        include 'WSClient.php';
-        $cbconn = Vtiger_WSClient('your_url');
-        $login = $cbconn->doLogout();
-        ```
+        The logout service eliminates the session information, invalidating any further operations with that session ID. For security reasons this method should be called when the user of the external application finishes his tasks. He should have an option to close the application.
       parameters:
         - name: sessionId
           in: query
@@ -73,14 +78,14 @@ paths:
                   - $ref: '#/components/schemas/APIError'
   /retrieve:
     get:
-      summary: Your GET endpoint
+      summary: retrieving the records with an ID
       tags:
         - retrieve
       responses:
         '200':
           description: OK
           headers: {}
-      operationId: get-retrieve
+      operationId: retrieve
       description: |-
         Get all the values the user has access to, of an existent record in the application. Given a web service ID of a record this service will return an array with all the fields and their values.
         All reference type fields which are pointing to another record will have valid web service IDs. 
@@ -93,7 +98,7 @@ paths:
           required: true
   /getchallenge:
     get:
-      summary: Your GET endpoint
+      summary: get a challenge string to encode the password for login.
       tags: []
       responses:
         '200':
@@ -101,18 +106,21 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
+                description: '  A GetChallengeResult object with the challenge token and it''s time to live.'
                 type: object
                 properties:
                   token:
                     type: string
                     minLength: 1
+                    description: challenge string.
                   serverTime:
                     type: string
                     minLength: 1
+                    description: time on server.
                   expireTime:
                     type: string
                     minLength: 1
+                    description: expire time of token.
                 required:
                   - token
                   - serverTime
@@ -131,7 +139,7 @@ paths:
     parameters: []
   /create:
     post:
-      summary: ''
+      summary: Creates a new record in the application.
       operationId: create
       responses:
         '200':
@@ -152,7 +160,7 @@ paths:
           required: true
   /update:
     post:
-      summary: ''
+      summary: Updates ALL the fields of a given record.
       operationId: update
       responses:
         '200':
@@ -173,7 +181,7 @@ paths:
           description: record object with fields to update. It is mandatory to set the ID field in the Object and send in all fields
   /delete:
     post:
-      summary: ''
+      summary: Eliminate any record we have permission to delete.
       operationId: delete
       responses:
         '204':
@@ -189,7 +197,7 @@ paths:
           description: web service ID or cbuuid of the record we want to delete
   /deleteUser:
     post:
-      summary: ''
+      summary: removing a user
       operationId: deleteUser
       responses:
         '204':
@@ -212,7 +220,7 @@ paths:
           description: user web service ID to transfer records to
   /changePassword:
     post:
-      summary: ''
+      summary: changing password of the current user we loggedin.
       operationId: changePassword
       responses:
         '201':
@@ -245,7 +253,7 @@ paths:
           required: true
   /addTicketFaqComment:
     post:
-      summary: ''
+      summary: adding comments or FAQ
       operationId: addTicketFaqComment
       responses:
         '200':
@@ -270,7 +278,7 @@ paths:
           required: true
   /revise:
     get:
-      summary: Your GET endpoint
+      summary: Updates fields of a given record.
       tags: []
       responses:
         '201':
@@ -287,7 +295,7 @@ paths:
     parameters: []
   /MassCreate:
     post:
-      summary: ''
+      summary: Create a set of records.
       operationId: MassCreate
       responses:
         '200':
@@ -319,7 +327,7 @@ paths:
           required: true
   /MassRetrieve:
     get:
-      summary: Your GET endpoint
+      summary: Retrieve a set of records.
       tags: []
       responses:
         '200':
@@ -345,7 +353,7 @@ paths:
           required: true
   /MassUpdate:
     post:
-      summary: ''
+      summary: Modifying a set of records.
       operationId: MassUpdate
       responses:
         '200':
@@ -365,7 +373,7 @@ paths:
                     items: {}
         '201':
           description: Records updated
-      description: Update a set of records at once.
+      description: Update a set of records at once as a single group.
       parameters:
         - schema:
             type: array
@@ -374,7 +382,7 @@ paths:
           description: 'an array of Object to update, each one must contain the web service ID of the record to update and the field-value list of fields to update.'
   /MassDelete:
     post:
-      summary: ''
+      summary: deleting a set of entities
       operationId: MassDelete
       responses:
         '200':
@@ -401,7 +409,7 @@ paths:
                 properties:
                   '':
                     type: string
-      description: Delete a set of records at once.
+      description: Delete a set of records at once as a group.
       parameters:
         - schema:
             type: array
@@ -410,7 +418,7 @@ paths:
           description: comma-separated list of web service IDs to delete
   /ValidateInformation:
     post:
-      summary: ''
+      summary: validating configurations
       operationId: ValidateInformation
       responses:
         '200':
@@ -422,7 +430,7 @@ paths:
                 description: If false is returned the result will contain an array wit all the validations that have failed
         '201':
           description: Created
-      description: Apply application configured validations on a set of fields.
+      description: Apply application configured validations on a set of fields also create and update operations will need validation before performing any operation.
       parameters:
         - schema:
             type: array
@@ -432,7 +440,7 @@ paths:
           required: true
   /upsert:
     post:
-      summary: ''
+      summary: Search and update or create a record.
       operationId: upsert
       responses:
         '200':
@@ -693,7 +701,7 @@ paths:
           required: true
   /SetRelation:
     post:
-      summary: ''
+      summary: Sets relations between one record and a set of other records.
       operationId: SetRelation
       responses:
         '204':
@@ -717,7 +725,7 @@ paths:
           required: true
   /UnsetRelation:
     post:
-      summary: ''
+      summary: unbinding the relation between records.
       operationId: UnsetRelation
       responses:
         '204':
@@ -738,7 +746,7 @@ paths:
           required: true
   /listtypes:
     get:
-      summary: Your GET endpoint
+      summary: list modules
       tags: []
       responses:
         '200':
@@ -1718,7 +1726,7 @@ paths:
           required: true
   /describe:
     get:
-      summary: Your GET endpoint
+      summary: detailed information about a module.
       tags: []
       responses:
         '200':
@@ -1732,15 +1740,9 @@ paths:
           name: elementType
           description: comma-separated list of modules which we want more detailed information.
           required: true
-  /doCreate:
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses: {}
-      operationId: get-doCreate
   /getfilterfields:
     post:
-      summary: ''
+      summary: Default fields from a given module.
       operationId: getfilterfields
       responses:
         '200':
@@ -1755,7 +1757,7 @@ paths:
           required: true
   /getViewsByModule:
     post:
-      summary: ''
+      summary: Available filters from a module.
       operationId: getViewsByModule
       responses:
         '200':
@@ -1763,14 +1765,27 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
+                description: 'A map object with a list of the filters, the link fields, and the default page size.'
                 type: object
                 properties:
                   filters:
                     type: object
+                    required:
+                      - '7'
                     properties:
                       '7':
                         type: object
+                        required:
+                          - name
+                          - status
+                          - advcriteria
+                          - advcriteriaWQL
+                          - advcriteriaEVQL
+                          - stdcriteria
+                          - stdcriteriaWQL
+                          - stdcriteriaEVQL
+                          - fields
+                          - default
                         properties:
                           name:
                             type: string
@@ -1795,28 +1810,13 @@ paths:
                           fields:
                             type: array
                             items:
-                              required: []
-                              properties: {}
+                              type: object
                           default:
                             type: boolean
-                        required:
-                          - name
-                          - status
-                          - advcriteria
-                          - advcriteriaWQL
-                          - advcriteriaEVQL
-                          - stdcriteria
-                          - stdcriteriaWQL
-                          - stdcriteriaEVQL
-                          - fields
-                          - default
-                    required:
-                      - '7'
                   linkfields:
                     type: array
                     items:
-                      required: []
-                      properties: {}
+                      type: object
                   pagesize:
                     type: number
                 required:
@@ -1833,7 +1833,7 @@ paths:
           required: true
   /getFiltersByModule:
     post:
-      summary: ''
+      summary: Available filters in a module with available informations.
       operationId: getFiltersByModule
       responses:
         '200':
@@ -1857,7 +1857,7 @@ paths:
           required: true
   /getPortalUserInfo:
     post:
-      summary: ''
+      summary: list available fields for a user.
       operationId: getPortalUserInfo
       responses:
         '200':
@@ -1923,7 +1923,7 @@ paths:
       description: Retrieve a list of available fields for the connected user.
   /getPortalUserDateFormat:
     post:
-      summary: ''
+      summary: date format
       operationId: getPortalUserDateFormat
       responses:
         '200':
@@ -1939,7 +1939,7 @@ paths:
       description: Retrieve the date format of the connected user.
   /getAllUsers:
     post:
-      summary: ''
+      summary: All user names
       operationId: getAllUsers
       responses:
         '200':
@@ -1948,17 +1948,19 @@ paths:
             application/json:
               schema:
                 type: array
-                description: ''
+                description: list of user names indexed by ID.
                 minItems: 1
                 uniqueItems: true
                 items:
                   type: object
-                  required:
-                    - user_id
+                  description: single user entity.
                   properties:
                     user_id:
                       type: string
                       minLength: 1
+                      description: user id
+                  required:
+                    - user_id
               examples:
                 example-1:
                   value:
@@ -1966,7 +1968,7 @@ paths:
       description: Retrieve a list of all existing users names.
   /getAssignedUserList:
     get:
-      summary: Your GET endpoint
+      summary: All users with access to a module.
       tags: []
       responses:
         '200':
@@ -1975,21 +1977,24 @@ paths:
             application/json:
               schema:
                 type: array
-                description: ''
+                description: list of user IDs and names.
                 minItems: 1
                 uniqueItems: true
                 items:
                   type: object
-                  required:
-                    - userid
-                    - username
+                  description: entity
                   properties:
                     userid:
                       type: string
                       minLength: 1
+                      description: user id
                     username:
                       type: string
                       minLength: 1
+                      description: user name
+                  required:
+                    - userid
+                    - username
       operationId: getAssignedUserList
       description: Retrieve a list of all users with access to a module.
       parameters:
@@ -2001,7 +2006,7 @@ paths:
           required: true
   /getUsersInSameGroup:
     post:
-      summary: ''
+      summary: users within a group
       operationId: getUsersInSameGroup
       responses:
         '200':
@@ -2026,7 +2031,7 @@ paths:
           required: true
   /getRelatedModulesManytoOne:
     get:
-      summary: Your GET endpoint
+      summary: list related modues
       tags: []
       responses:
         '200':
@@ -2054,7 +2059,7 @@ paths:
           required: true
   /getRelatedModulesInfomation:
     post:
-      summary: ''
+      summary: Information related to modules in the same group.
       operationId: getRelatedModulesInfomation
       responses:
         '200':
@@ -2065,6 +2070,7 @@ paths:
                 type: array
                 description: The information returned with this function is present in the Describe response.
                 items: {}
+              examples: {}
       description: Returns an array of metadata information about the modules related to the given module.
       parameters:
         - schema:
@@ -2072,9 +2078,10 @@ paths:
           in: query
           name: module
           description: main module for which we want to know the list of related modules.
+          required: true
   /getReferenceValue:
     get:
-      summary: ''
+      summary: Entity names from IDs
       operationId: getReferenceValue
       responses:
         '200':
@@ -2085,6 +2092,7 @@ paths:
                 type: array
                 description: The information returned with this function is equivalent to the “ename” virtual fields returned by Retrieve.
                 items: {}
+              examples: {}
       description: convert web service IDs into their entity names.
       parameters:
         - schema:
@@ -2095,7 +2103,7 @@ paths:
           required: true
   /getModulePermissionQuery:
     get:
-      summary: Your GET endpoint
+      summary: List permissions
       tags: []
       responses:
         '200':
@@ -2121,7 +2129,7 @@ paths:
           required: true
   /getPicklistValues:
     post:
-      summary: ''
+      summary: picklist field of a given module.
       operationId: getPicklistValues
       responses:
         '200':
@@ -2132,6 +2140,7 @@ paths:
                 type: array
                 description: A map of picklist fields and all their values.
                 items: {}
+              examples: {}
       description: get picklist fields for the given module and all their possible values.
       parameters:
         - schema:
@@ -2142,7 +2151,7 @@ paths:
           description: name of the module for which we want to retrieve the picklist values.
   /getEntityNum:
     post:
-      summary: ''
+      summary: Numeric field prefixes
       operationId: getEntityNum
       responses:
         '200':
@@ -2157,7 +2166,7 @@ paths:
       parameters: []
   /gettranslation:
     post:
-      summary: ''
+      summary: Translate
       operationId: gettranslation
       responses:
         '200':
@@ -2181,6 +2190,17 @@ paths:
                   - Accounts
                   - LBL_LIST_ACCOUNT_NAME
                   - Portal User
+              examples:
+                example-1:
+                  value:
+                    Accounts: string
+                    LBL_LIST_ACCOUNT_NAME: string
+                    Portal User: string
+                example-2:
+                  value:
+                    Accounts: Cuentas
+                    LBL_LIST_ACCOUNT_NAME: Cuentas
+                    Portal User: Usuario de Portal
       description: This method permits us to use the translations in the application in our frontend application.
       parameters:
         - schema:
@@ -2203,7 +2223,7 @@ paths:
           name: module
   /jsLog:
     post:
-      summary: ''
+      summary: Logging from javascript to backend.
       operationId: jsLog
       responses:
         '200':
@@ -2224,7 +2244,7 @@ paths:
           required: true
   /sync:
     get:
-      summary: Your GET endpoint
+      summary: Changes made.
       tags: []
       responses:
         '200':
@@ -2254,6 +2274,21 @@ paths:
                   - deleted
                   - more
                   - lastModifiedTime
+              examples:
+                example-1:
+                  value:
+                    updated:
+                      - {}
+                    deleted:
+                      - {}
+                    more: true
+                    lastModifiedTime: 0
+                example-2:
+                  value:
+                    updated: []
+                    deleted: []
+                    more: false
+                    lastModifiedTime: 1608227849
       operationId: sync
       description: 'The sync service returns the complete set of changes that occurred to all records assigned to the connected user from a given date and time.Returns a SyncResult object which contains all the changes that occurred in the application since the parameter modifiedTime to records assigned to the connected user. Optionally, if the connected user is an administrator he can ask for all changes in the application disregarding who the records are assigned to.'
       parameters:
@@ -2277,7 +2312,7 @@ paths:
           required: true
   /getRecordImages:
     get:
-      summary: Your GET endpoint
+      summary: Information about image attachments.
       tags: []
       responses:
         '200':
@@ -2299,7 +2334,7 @@ paths:
           required: true
   /addProductImages:
     post:
-      summary: ''
+      summary: Adding attachment images.
       operationId: addProductImages
       responses:
         '200':
@@ -2326,7 +2361,7 @@ paths:
           required: true
   /getFieldAutocomplete:
     get:
-      summary: Your GET endpoint
+      summary: Autocompletion.
       tags: []
       responses:
         '200':
@@ -2337,6 +2372,13 @@ paths:
                 type: array
                 description: 'Map of records found, indexed by their CRMID with the value of a Map of the returnfields fields.'
                 items: {}
+              examples:
+                example-1:
+                  value:
+                    - crmid: 14x8381
+                      crmfields:
+                        productname: Cooking pads
+                        vendor_part_no: '12'
       operationId: getFieldAutocomplete
       description: Executes a search in the list of fields of a module for the given term with the selected operator.
       parameters:
@@ -2378,7 +2420,7 @@ paths:
           required: true
   /getReferenceAutocomplete:
     get:
-      summary: Your GET endpoint
+      summary: autocompletion and searching.
       tags: []
       responses:
         '200':
@@ -2409,6 +2451,12 @@ paths:
                     - crmid
                     - crmname
                     - crmmodule
+              examples:
+                example-1:
+                  value:
+                    - crmid: 11x8385
+                      crmname: 'coreBOSwsTest :: Organizations'
+                      crmmodule: Accounts
       operationId: getReferenceAutocomplete
       description: Executes a search in the entity fields of the given modules for the given term with the selected operator.
       parameters:
@@ -2438,7 +2486,7 @@ paths:
           required: true
   /getRelatedRecordsThroughModule:
     post:
-      summary: ''
+      summary: List records related with a module.
       operationId: getRelatedRecordsThroughModule
       responses:
         '200':
@@ -2454,6 +2502,7 @@ paths:
                   type: object
                   required: []
                   properties: {}
+              examples: {}
       description: ' In some use cases, it is useful to be able to get a list of records related at a second level. For example, we want to get a list of project tasks related to an account going through the Projects related to the account.Returns a list of Object records related to the given record passing through another related module.'
       parameters:
         - schema:
@@ -2488,7 +2537,7 @@ paths:
           required: true
   /convertlead:
     post:
-      summary: ''
+      summary: lead conversion
       operationId: convertlead
       responses:
         '200':
@@ -2499,6 +2548,13 @@ paths:
                 type: array
                 description: Array with all the information of the new objects created.
                 items: {}
+              examples:
+                example-1:
+                  value:
+                    sessionName: fef54295fdb92649e542
+                    userId: 19x1
+                    version: '0.22'
+                    vtigerVersion: 5.5.0
       description: 'Permits the conversion of a lead into an account, contact and potential. This service is used by the application itself when converting leads.'
       parameters:
         - schema:
@@ -2507,6 +2563,29 @@ paths:
           name: id
           description: "$entityvalues is an array, Parameters:\t   id: $entityvalues is an array. Consult the modules/Leads/LeadConvertToEntities.php to see an example."
           required: true
+  /extendsession:
+    post:
+      summary: Renewing token expiration time.
+      operationId: extendsession
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: ''
+                properties:
+                  sessionName:
+                    type: string
+                    description: validated session ID to use in subsequent calls.
+                  userId:
+                    type: string
+                    description: web service ID of the connected user.
+                  version:
+                    type: string
+                    description: coreBOS and web service version numbers.
+      description: 'When a user has already logged in and has an active session, it is useful to be able to use that same session to access the web service API without forcing the user to log in again. This method will detect the existing session and return a validated login session for the web service API.'
 components:
   schemas:
     AccessToken:

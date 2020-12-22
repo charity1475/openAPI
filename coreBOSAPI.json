@@ -1,0 +1,3778 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Corebos API",
+    "description": "coreBOS stands for core Business Operating System,a customizable CRM solution. coreBOS is a business empowering tool, an adaptable software program that will help your business accomplish it’s goals. It is a free and open source software application (licensed under VPL/MPL) that tries to help small and medium business handle all the day to day administration tasks and support the many difficult decisions that need to be made.",
+    "license": {
+      "name": "VPL"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://corebos.spike.api/v1"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "login to service and get sessionId",
+        "operationId": "login",
+        "tags": [
+          "login"
+        ],
+        "description": "Validate the user's access in the web service interface. The use of the getchallenge token is required.\nNow that we have the challenge token we can proceed with the login step. For this we have to send the user name and a verification string. This verification string can be constructed in two ways",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "name of the active coreBOS user that needs access",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "codified password to login with, it must be the MD5 of the concatenation of user access key and challenge token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns operation status along with sessionId and user information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/APILoginResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIError"
+                    }
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "success": true,
+                      "result": {
+                        "sessionName": "c4ad8d35e8caa5f69e0e",
+                        "userId": "19x5",
+                        "version": "0.22",
+                        "vtigerVersion": "5.5.0"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Request failed, This is the response received when a request is made with invalid API credentials"
+          },
+          "403": {
+            "description": "Request failed, This is the response received when a request is made with valid API credentials towards an API endpoint or resource you do not have access to."
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "delete access token and logout of service",
+        "operationId": "logout",
+        "tags": [
+          "logout"
+        ],
+        "description": "The logout service eliminates the session information, invalidating any further operations with that session ID. For security reasons this method should be called when the user of the external application finishes his tasks. He should have an option to close the application.\n",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "query",
+            "description": "sessionId access token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "returns operation status and related information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/APILogoutResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/APIError"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/retrieve": {
+      "get": {
+        "summary": "retrieving the records with an ID",
+        "tags": [
+          "retrieve"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {}
+          }
+        },
+        "operationId": "retrieve",
+        "description": "Get all the values the user has access to, of an existent record in the application. Given a web service ID of a record this service will return an array with all the fields and their values.\nAll reference type fields which are pointing to another record will have valid web service IDs. ",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id ",
+            "description": "web service ID or cbuuid of the record we want to recover",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getchallenge": {
+      "get": {
+        "summary": "get a challenge string to encode the password for login.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "  A GetChallengeResult object with the challenge token and it's time to live.",
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "challenge string."
+                    },
+                    "serverTime": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "time on server."
+                    },
+                    "expireTime": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "expire time of token."
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "serverTime",
+                    "expireTime"
+                  ]
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted"
+          }
+        },
+        "operationId": "getchallenge",
+        "description": "get a challenge string to encode the password for login",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userName",
+            "description": "name of an active and valid user in coreBOS.",
+            "required": true
+          }
+        ]
+      },
+      "parameters": []
+    },
+    "/create": {
+      "post": {
+        "summary": "Creates a new record in the application.",
+        "operationId": "create",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Creates a new record in the application.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "elementType",
+            "description": "module name where we want to create the record ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "element",
+            "description": " map with all the field-value entries to save",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/update": {
+      "post": {
+        "summary": "Updates ALL the fields of a given record.",
+        "operationId": "update",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "An object with all the information of the record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "description": "This service updates ALL the fields of a given record. Once again; ALL FIELDS. This endpoint does not support updating of individual fields, so, in many cases, updating becomes a two-step operation; first retrieve all the records, assign the new values leaving the others untouched and update the whole record",
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "element",
+            "description": "record object with fields to update. It is mandatory to set the ID field in the Object and send in all fields"
+          }
+        ]
+      }
+    },
+    "/delete": {
+      "post": {
+        "summary": "Eliminate any record we have permission to delete.",
+        "operationId": "delete",
+        "responses": {
+          "204": {
+            "description": "operation succeeded."
+          },
+          "401": {
+            "description": "Permission to perform the operation is denied."
+          }
+        },
+        "description": "Eliminate any record we have permission to delete.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "web service ID or cbuuid of the record we want to delete"
+          }
+        ]
+      }
+    },
+    "/deleteUser": {
+      "post": {
+        "summary": "removing a user",
+        "operationId": "deleteUser",
+        "responses": {
+          "204": {
+            "description": "successful deleted a user"
+          },
+          "401": {
+            "description": "Permission denied."
+          }
+        },
+        "description": "Permits us to delete a user and transfer all his assigned records to another user.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "user web service ID that will be deleted ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "newOwnerId",
+            "required": true,
+            "description": "user web service ID to transfer records to"
+          }
+        ]
+      }
+    },
+    "/changePassword": {
+      "post": {
+        "summary": "changing password of the current user we loggedin.",
+        "operationId": "changePassword",
+        "responses": {
+          "201": {
+            "description": "successful updated the password."
+          }
+        },
+        "description": "Permits a user to change his password or the password of another user if the connected user is an administrator.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id ",
+            "description": "user web service ID ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "oldPassword",
+            "description": "The password to be changed, the recent password.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "newPassword",
+            "description": "The new password to be added.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "confirmPassword",
+            "description": "The new password to be added",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/addTicketFaqComment": {
+      "post": {
+        "summary": "adding comments or FAQ",
+        "operationId": "addTicketFaqComment",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Function used to add comments to Tickets (HelpDesK) and Frequently Asked Questions (Faq).",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "web service id of the trouble ticket or faq to which we must attach the comment",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "values",
+            "description": "array with the parameters of the comment. these parameters can be:\n'from_portal' 0 or 1: 0 = 'user', 1 = 'customer'\n'parent_id' webservice id of the contact creating the comment from the portal\n'comments' string, comment to add",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/revise": {
+      "get": {
+        "summary": "Updates fields of a given record.",
+        "tags": [],
+        "responses": {
+          "201": {
+            "description": "record's fields updated."
+          }
+        },
+        "operationId": "revise",
+        "description": "Updating specific fields within a record, unlike update which update all field of a record. The fields to be updated are sent in an encoded array.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "element",
+            "description": "A list of some fields of a record to be updated.",
+            "required": true
+          }
+        ]
+      },
+      "parameters": []
+    },
+    "/MassCreate": {
+      "post": {
+        "summary": "Create a set of records.",
+        "operationId": "MassCreate",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success_creates": {
+                      "type": "array",
+                      "description": "array of created Object.",
+                      "items": {}
+                    },
+                    "failed_creates": {
+                      "type": "array",
+                      "description": "array of Object that could not be created with their error message.",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Records created."
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "description": "The Mass Create elements structure is an intelligent layout that permits us not only to create many records in one call but also to establish relationships among the different records. ",
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "elements",
+            "description": "an array of Object to create, Each element of the array represents a record to be created. It contains an elementType so we know what module to create the record in, a referenceId that identifies the record inside the structure, and a field-value Object with the fields of the new record. ",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/MassRetrieve": {
+      "get": {
+        "summary": "Retrieve a set of records.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "An array containing objects of the retrieved records.",
+                  "items": {}
+                },
+                "examples": {
+                  "example-1": {
+                    "value": [
+                      null
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "MassRetrieve",
+        "description": "Retrieve a set of records at once reducing the number of calls to an API.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "ids",
+            "description": "a comma-separated string of web service ID of the records to retrieve ",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/MassUpdate": {
+      "post": {
+        "summary": "Modifying a set of records.",
+        "operationId": "MassUpdate",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success_updates": {
+                      "type": "array",
+                      "description": "array of updated IDs .",
+                      "items": {}
+                    },
+                    "failed_updates": {
+                      "type": "array",
+                      "description": "array of IDs that could not be updated with their error message.",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Records updated"
+          }
+        },
+        "description": "Update a set of records at once as a single group.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "elements",
+            "description": "an array of Object to update, each one must contain the web service ID of the record to update and the field-value list of fields to update."
+          }
+        ]
+      }
+    },
+    "/MassDelete": {
+      "post": {
+        "summary": "deleting a set of entities",
+        "operationId": "MassDelete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success_deletes": {
+                      "type": "array",
+                      "description": "array of deleted IDs.",
+                      "items": {}
+                    },
+                    "failed_deletes": {
+                      "type": "array",
+                      "description": "array of IDs that could not be deleted with their error message.",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete a set of records at once as a group.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "ids",
+            "description": "comma-separated list of web service IDs to delete"
+          }
+        ]
+      }
+    },
+    "/ValidateInformation": {
+      "post": {
+        "summary": "validating configurations",
+        "operationId": "ValidateInformation",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "description": "If false is returned the result will contain an array wit all the validations that have failed"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "Apply application configured validations on a set of fields also create and update operations will need validation before performing any operation.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": " context",
+            "description": "an Object with the field-value pairs to validate. Either a “module” or a “record” entry must exist in the object. If “record” is given the validations will be evaluated with the fields of the record.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/upsert": {
+      "post": {
+        "summary": "Search and update or create a record.",
+        "operationId": "upsert",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "salutationtype": {
+                      "type": "string"
+                    },
+                    "firstname": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "contact_no": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "lastname": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "phone": {
+                      "type": "string"
+                    },
+                    "account_id": {
+                      "type": "string"
+                    },
+                    "mobile": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "leadsource": {
+                      "type": "string"
+                    },
+                    "homephone": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "otherphone": {
+                      "type": "string"
+                    },
+                    "department": {
+                      "type": "string"
+                    },
+                    "fax": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "birthday": {
+                      "type": "string"
+                    },
+                    "assistant": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "contact_id": {
+                      "type": "string"
+                    },
+                    "assistantphone": {
+                      "type": "string"
+                    },
+                    "secondaryemail": {
+                      "type": "string"
+                    },
+                    "emailoptout": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "donotcall": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "assigned_user_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "createdtime": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "notify_owner": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "modifiedtime": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "modifiedby": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "isconvertedfromlead": {
+                      "type": "string"
+                    },
+                    "convertedfromlead": {
+                      "type": "string"
+                    },
+                    "created_user_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "template_language": {
+                      "type": "string"
+                    },
+                    "portal": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "support_start_date": {
+                      "type": "string"
+                    },
+                    "support_end_date": {
+                      "type": "string"
+                    },
+                    "mailingstreet": {
+                      "type": "string"
+                    },
+                    "otherstreet": {
+                      "type": "string"
+                    },
+                    "mailingpobox": {
+                      "type": "string"
+                    },
+                    "otherpobox": {
+                      "type": "string"
+                    },
+                    "mailingcity": {
+                      "type": "string"
+                    },
+                    "othercity": {
+                      "type": "string"
+                    },
+                    "mailingstate": {
+                      "type": "string"
+                    },
+                    "otherstate": {
+                      "type": "string"
+                    },
+                    "mailingzip": {
+                      "type": "string"
+                    },
+                    "otherzip": {
+                      "type": "string"
+                    },
+                    "mailingcountry": {
+                      "type": "string"
+                    },
+                    "othercountry": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "imagename": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "cbuuid": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "salutationtype",
+                    "firstname",
+                    "contact_no",
+                    "lastname",
+                    "phone",
+                    "account_id",
+                    "mobile",
+                    "leadsource",
+                    "homephone",
+                    "title",
+                    "otherphone",
+                    "department",
+                    "fax",
+                    "email",
+                    "birthday",
+                    "assistant",
+                    "contact_id",
+                    "assistantphone",
+                    "secondaryemail",
+                    "emailoptout",
+                    "donotcall",
+                    "reference",
+                    "assigned_user_id",
+                    "createdtime",
+                    "notify_owner",
+                    "modifiedtime",
+                    "modifiedby",
+                    "isconvertedfromlead",
+                    "convertedfromlead",
+                    "created_user_id",
+                    "template_language",
+                    "portal",
+                    "support_start_date",
+                    "support_end_date",
+                    "mailingstreet",
+                    "otherstreet",
+                    "mailingpobox",
+                    "otherpobox",
+                    "mailingcity",
+                    "othercity",
+                    "mailingstate",
+                    "otherstate",
+                    "mailingzip",
+                    "otherzip",
+                    "mailingcountry",
+                    "othercountry",
+                    "description",
+                    "imagename",
+                    "id",
+                    "cbuuid"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "salutationtype": "string",
+                      "firstname": "string",
+                      "contact_no": "string",
+                      "lastname": "string",
+                      "phone": "string",
+                      "account_id": "string",
+                      "mobile": "string",
+                      "leadsource": "string",
+                      "homephone": "string",
+                      "title": "string",
+                      "otherphone": "string",
+                      "department": "string",
+                      "fax": "string",
+                      "email": "string",
+                      "birthday": "string",
+                      "assistant": "string",
+                      "contact_id": "string",
+                      "assistantphone": "string",
+                      "secondaryemail": "string",
+                      "emailoptout": "string",
+                      "donotcall": "string",
+                      "reference": "string",
+                      "assigned_user_id": "string",
+                      "createdtime": "string",
+                      "notify_owner": "string",
+                      "modifiedtime": "string",
+                      "modifiedby": "string",
+                      "isconvertedfromlead": "string",
+                      "convertedfromlead": "string",
+                      "created_user_id": "string",
+                      "template_language": "string",
+                      "portal": "string",
+                      "support_start_date": "string",
+                      "support_end_date": "string",
+                      "mailingstreet": "string",
+                      "otherstreet": "string",
+                      "mailingpobox": "string",
+                      "otherpobox": "string",
+                      "mailingcity": "string",
+                      "othercity": "string",
+                      "mailingstate": "string",
+                      "otherstate": "string",
+                      "mailingzip": "string",
+                      "otherzip": "string",
+                      "mailingcountry": "string",
+                      "othercountry": "string",
+                      "description": "string",
+                      "imagename": "string",
+                      "id": "string",
+                      "cbuuid": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "The upsert method will permit us to execute a search on some fields in a module, if we find a record that matches the search we will update it with the given values, if no record can be found we will create a new one with the given values. So it is a Search and Update or Create in one call. ",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "elementType",
+            "description": "module name where we search and operate",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": " element",
+            "description": "record object with fields to update/create",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "searchOn",
+            "description": "comma-separated list of fields to search on, the values will be obtained from element ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "updatedfields",
+            "description": "comma-separated list of fields to update if the record is found, the values will be obtained from element",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/SetRelation": {
+      "post": {
+        "summary": "Sets relations between one record and a set of other records.",
+        "operationId": "SetRelation",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "description": "coreBOS API supports defining 1:N and N:N relations between modules.\nBy setting a value in a foreign key (relation field or uitype 10) we establish a direct relationship between two modules.\nThe Create and Update operations also support a virtual meta-field named relations which contains an array of web service IDs with which we want to relate the record being created or updated.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "relateThisId",
+            "description": "web service ID of the main record to relate ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "withTheseIds",
+            "description": "array of web service IDs to relate to the main record",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/UnsetRelation": {
+      "post": {
+        "summary": "unbinding the relation between records.",
+        "operationId": "UnsetRelation",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "description": "Deletes relations between one record and a set of other records.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "unrelateThisId",
+            "description": "web service ID of the main record to unrelate ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "withTheseIds",
+            "description": "array of web service IDs to unrelate from the main record",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/listtypes": {
+      "get": {
+        "summary": "list modules",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "types": {
+                      "type": "array",
+                      "items": {
+                        "required": [],
+                        "properties": {}
+                      }
+                    },
+                    "information": {
+                      "type": "object",
+                      "properties": {
+                        "Campaigns": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Vendors": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Faq": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Quotes": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "PurchaseOrder": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "SalesOrder": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Invoice": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "PriceBooks": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Leads": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Accounts": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Contacts": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Potentials": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Products": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Documents": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Emails": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "HelpDesk": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Users": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "PBXManager": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "ServiceContracts": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Services": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbupdater": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "ModComments": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "GlobalVariable": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "InventoryDetails": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbMap": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbTermConditions": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbCalendar": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbtranslation": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "BusinessActions": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbSurvey": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbSurveyQuestion": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbSurveyDone": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbSurveyAnswer": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbCompany": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbCVManagement": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbQuestion": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "ProductComponent": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Messages": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "cbPulse": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "MsgTemplate": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Groups": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Currency": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "DocumentFolders": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "CompanyDetails": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "Workflow": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "AuditTrail": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        },
+                        "LoginHistory": {
+                          "type": "object",
+                          "properties": {
+                            "isEntity": {
+                              "type": "boolean"
+                            },
+                            "label": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "singular": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "isEntity",
+                            "label",
+                            "singular"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "Campaigns",
+                        "Vendors",
+                        "Faq",
+                        "Quotes",
+                        "PurchaseOrder",
+                        "SalesOrder",
+                        "Invoice",
+                        "PriceBooks",
+                        "Leads",
+                        "Accounts",
+                        "Contacts",
+                        "Potentials",
+                        "Products",
+                        "Documents",
+                        "Emails",
+                        "HelpDesk",
+                        "Users",
+                        "PBXManager",
+                        "ServiceContracts",
+                        "Services",
+                        "cbupdater",
+                        "ModComments",
+                        "GlobalVariable",
+                        "InventoryDetails",
+                        "cbMap",
+                        "cbTermConditions",
+                        "cbCalendar",
+                        "cbtranslation",
+                        "BusinessActions",
+                        "cbSurvey",
+                        "cbSurveyQuestion",
+                        "cbSurveyDone",
+                        "cbSurveyAnswer",
+                        "cbCompany",
+                        "cbCVManagement",
+                        "cbQuestion",
+                        "ProductComponent",
+                        "Messages",
+                        "cbPulse",
+                        "MsgTemplate",
+                        "Groups",
+                        "Currency",
+                        "DocumentFolders",
+                        "CompanyDetails",
+                        "Workflow",
+                        "AuditTrail",
+                        "LoginHistory"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "types",
+                    "information"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "types": [
+                        {}
+                      ],
+                      "information": {
+                        "Campaigns": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Vendors": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Faq": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Quotes": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "PurchaseOrder": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "SalesOrder": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Invoice": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "PriceBooks": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Leads": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Accounts": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Contacts": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Potentials": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Products": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Documents": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Emails": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "HelpDesk": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Users": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "PBXManager": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "ServiceContracts": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Services": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbupdater": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "ModComments": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "GlobalVariable": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "InventoryDetails": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbMap": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbTermConditions": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbCalendar": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbtranslation": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "BusinessActions": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbSurvey": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbSurveyQuestion": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbSurveyDone": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbSurveyAnswer": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbCompany": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbCVManagement": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbQuestion": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "ProductComponent": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Messages": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "cbPulse": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "MsgTemplate": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Groups": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Currency": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "DocumentFolders": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "CompanyDetails": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "Workflow": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "AuditTrail": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        },
+                        "LoginHistory": {
+                          "isEntity": true,
+                          "label": "string",
+                          "singular": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "listtypes",
+        "description": "Returns a list of module names the currently connected user has access to.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "fieldTypeList",
+            "description": "comma-separated list of field types the modules must have. Is optional.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/describe": {
+      "get": {
+        "summary": "detailed information about a module.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "operationId": "describe",
+        "description": "The Describe service gives us detailed information about the module which we are trying to access. It will inform us both of the types of actions permitted and all the information of the fields which we have access to.Returns metadata of a list of module names.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "elementType",
+            "description": "comma-separated list of modules which we want more detailed information.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getfilterfields": {
+      "post": {
+        "summary": "Default fields from a given module.",
+        "operationId": "getfilterfields",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Retrieve the default list of fields to show in a list view along with the link field and pagesize.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "module name to get the fields for.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getViewsByModule": {
+      "post": {
+        "summary": "Available filters from a module.",
+        "operationId": "getViewsByModule",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A map object with a list of the filters, the link fields, and the default page size.",
+                  "type": "object",
+                  "properties": {
+                    "filters": {
+                      "type": "object",
+                      "required": [
+                        "7"
+                      ],
+                      "properties": {
+                        "7": {
+                          "type": "object",
+                          "required": [
+                            "name",
+                            "status",
+                            "advcriteria",
+                            "advcriteriaWQL",
+                            "advcriteriaEVQL",
+                            "stdcriteria",
+                            "stdcriteriaWQL",
+                            "stdcriteriaEVQL",
+                            "fields",
+                            "default"
+                          ],
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "status": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "advcriteria": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "advcriteriaWQL": {
+                              "type": "string"
+                            },
+                            "advcriteriaEVQL": {
+                              "type": "string"
+                            },
+                            "stdcriteria": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "stdcriteriaWQL": {
+                              "type": "string"
+                            },
+                            "stdcriteriaEVQL": {
+                              "type": "string"
+                            },
+                            "fields": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "default": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "linkfields": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "pagesize": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "filters",
+                    "linkfields",
+                    "pagesize"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve a list of available filters on a module with all the available information of each: fields, conditions, default, and also the link field and page size. This method is similar to getFiltersByModule being the difference one property (HTML output) and that this method applies permission based on the coreBOS Custom View Management module.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "module name to get the filters for.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getFiltersByModule": {
+      "post": {
+        "summary": "Available filters in a module with available informations.",
+        "operationId": "getFiltersByModule",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "map": {
+                      "type": "array",
+                      "description": "A map object with a list of the filters in HTML and array format and the link fields",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve a list of available filters on a module with all the available information of each: fields, conditions, default, and also the link field and page size. This method is similar to getViewsByModule being the difference one property (HTML output) and that this method applies permission based on the Custom View Management (filters, public, and approve).",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "module name to get the filters for",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getPortalUserInfo": {
+      "post": {
+        "summary": "list available fields for a user.",
+        "operationId": "getPortalUserInfo",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "date_format": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "first_name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "last_name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "email1": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "is_admin": {
+                      "type": "boolean"
+                    },
+                    "roleid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "rolename": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "language": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "currency_grouping_pattern": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "currency_decimal_separator": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "currency_grouping_separator": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "currency_symbol_placement": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "date_format",
+                    "first_name",
+                    "last_name",
+                    "email1",
+                    "id",
+                    "is_admin",
+                    "roleid",
+                    "rolename",
+                    "language",
+                    "currency_grouping_pattern",
+                    "currency_decimal_separator",
+                    "currency_grouping_separator",
+                    "currency_symbol_placement"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve a list of available fields for the connected user."
+      }
+    },
+    "/getPortalUserDateFormat": {
+      "post": {
+        "summary": "date format",
+        "operationId": "getPortalUserDateFormat",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "date_format": {
+                      "type": "string",
+                      "description": "if none is set ISO (yyyy-mm-dd) will be returned"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve the date format of the connected user."
+      }
+    },
+    "/getAllUsers": {
+      "post": {
+        "summary": "All user names",
+        "operationId": "getAllUsers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "list of user names indexed by ID.",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "description": "single user entity.",
+                    "properties": {
+                      "user_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "user id"
+                      }
+                    },
+                    "required": [
+                      "user_id"
+                    ]
+                  }
+                },
+                "examples": {
+                  "example-1": {
+                    "value": [
+                      {
+                        "user_id": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Retrieve a list of all existing users names."
+      }
+    },
+    "/getAssignedUserList": {
+      "get": {
+        "summary": "All users with access to a module.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "list of user IDs and names.",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "description": "entity",
+                    "properties": {
+                      "userid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "user id"
+                      },
+                      "username": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "user name"
+                      }
+                    },
+                    "required": [
+                      "userid",
+                      "username"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getAssignedUserList",
+        "description": "Retrieve a list of all users with access to a module.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "module name to get the users for",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getUsersInSameGroup": {
+      "post": {
+        "summary": "users within a group",
+        "operationId": "getUsersInSameGroup",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "array user names of all the users in the groups that this user is part of indexed by their ID.",
+                  "items": {}
+                },
+                "examples": {
+                  "example-1": {
+                    "value": [
+                      null
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "return all the users in the groups that the given user is part of.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "userid to get the group users for. Note: application ID not web service ID",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getRelatedModulesManytoOne": {
+      "get": {
+        "summary": "list related modues",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "An array of module information which contains: name, label, field",
+                  "items": {}
+                },
+                "examples": {
+                  "example-1": {
+                    "value": [
+                      "admin",
+                      "label",
+                      "field"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getRelatedModulesManytoOne",
+        "description": "Returns an array of metadata information about the modules related to the given module in N:1 mode.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "main module for which we want to know the list of related modules.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getRelatedModulesInfomation": {
+      "post": {
+        "summary": "Information related to modules in the same group.",
+        "operationId": "getRelatedModulesInfomation",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "The information returned with this function is present in the Describe response.",
+                  "items": {}
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "description": "Returns an array of metadata information about the modules related to the given module.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "main module for which we want to know the list of related modules.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getReferenceValue": {
+      "get": {
+        "summary": "Entity names from IDs",
+        "operationId": "getReferenceValue",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "The information returned with this function is equivalent to the “ename” virtual fields returned by Retrieve.",
+                  "items": {}
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "description": "convert web service IDs into their entity names.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "PHP serialzed array of web service IDs to convert.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getModulePermissionQuery": {
+      "get": {
+        "summary": "List permissions",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "A map with these three entries:\n⇒ permissonTable: if a temporary table is required this will contain it's name\n⇒ permissionQuery: full permission query\n⇒ permissionJoin: only the join conditions of the query",
+                  "items": {}
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getModulePermissionQuery",
+        "description": "returns SQL query restrictions that must be applied to enforce application permissions. This is used to generate external SQL reports with tools like SuperSet or Metabase while applying the same rules configured inside the application.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "name of the module for which we want to retrieve the restrictions.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getPicklistValues": {
+      "post": {
+        "summary": "picklist field of a given module.",
+        "operationId": "getPicklistValues",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "A map of picklist fields and all their values.",
+                  "items": {}
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "description": "get picklist fields for the given module and all their possible values.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module ",
+            "required": true,
+            "description": "name of the module for which we want to retrieve the picklist values."
+          }
+        ]
+      }
+    },
+    "/getEntityNum": {
+      "post": {
+        "summary": "Numeric field prefixes",
+        "operationId": "getEntityNum",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "A map of auto numeric prefixes with module names as key.",
+                  "items": {}
+                }
+              }
+            }
+          }
+        },
+        "description": "get the auto numeric field prefixes of all modules with a uitype 4 field.",
+        "parameters": []
+      }
+    },
+    "/gettranslation": {
+      "post": {
+        "summary": "Translate",
+        "operationId": "gettranslation",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "Accounts": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "LBL_LIST_ACCOUNT_NAME": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "Portal User": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "Accounts",
+                    "LBL_LIST_ACCOUNT_NAME",
+                    "Portal User"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "Accounts": "string",
+                      "LBL_LIST_ACCOUNT_NAME": "string",
+                      "Portal User": "string"
+                    }
+                  },
+                  "example-2": {
+                    "value": {
+                      "Accounts": "Cuentas",
+                      "LBL_LIST_ACCOUNT_NAME": "Cuentas",
+                      "Portal User": "Usuario de Portal"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "This method permits us to use the translations in the application in our frontend application.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "totranslate",
+            "description": "Object with the keys to translate, the value will be ignored if a translation exists or returned if no translation exists ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "language",
+            "required": true,
+            "description": "a valid application language identifier (e.g. es_es) "
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "description": "module to start the translations from",
+            "required": true,
+            "name": "module"
+          }
+        ]
+      }
+    },
+    "/jsLog": {
+      "post": {
+        "summary": "Logging from javascript to backend.",
+        "operationId": "jsLog",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "The jsLog endpoint permits us to send any message from javascript to our coreBOS backend. If we activate the javascript logging section we will be able to send messages from javascript to our logs directory for tracing. ",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "level",
+            "description": "log4php logging level ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": " message",
+            "description": "the string to write in the log if the given level is matched",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/sync": {
+      "get": {
+        "summary": "Changes made.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "updated": {
+                      "type": "array",
+                      "items": {
+                        "required": [],
+                        "properties": {}
+                      }
+                    },
+                    "deleted": {
+                      "type": "array",
+                      "items": {
+                        "required": [],
+                        "properties": {}
+                      }
+                    },
+                    "more": {
+                      "type": "boolean"
+                    },
+                    "lastModifiedTime": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "updated",
+                    "deleted",
+                    "more",
+                    "lastModifiedTime"
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "updated": [
+                        {}
+                      ],
+                      "deleted": [
+                        {}
+                      ],
+                      "more": true,
+                      "lastModifiedTime": 0
+                    }
+                  },
+                  "example-2": {
+                    "value": {
+                      "updated": [],
+                      "deleted": [],
+                      "more": false,
+                      "lastModifiedTime": 1608227849
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "sync",
+        "description": "The sync service returns the complete set of changes that occurred to all records assigned to the connected user from a given date and time.Returns a SyncResult object which contains all the changes that occurred in the application since the parameter modifiedTime to records assigned to the connected user. Optionally, if the connected user is an administrator he can ask for all changes in the application disregarding who the records are assigned to.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "description": "timestamp of last synchronization ",
+            "required": true,
+            "name": " modifiedTime"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "elementType",
+            "description": "optional parameter, name of the module we want to get the changes for, if not set all records affected in all modules will be returned ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "syncType",
+            "description": "a string which can be empty or contain the value 'application'. If it is 'application' and the connected user is an administrator, all changes to the application will be returned.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getRecordImages": {
+      "get": {
+        "summary": "Information about image attachments.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "an array with name, path, URL, type, internal ID for each file in the record.",
+                  "items": {}
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getRecordImages",
+        "description": "getRecordImages allows a web service client to retrieve the information of the image attachments associated with a record, which can then be used with the build/HelperScripts/getImageData.php script to obtain the image data itself. ",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "web service id of the record with image fields we want to get.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/addProductImages": {
+      "post": {
+        "summary": "Adding attachment images.",
+        "operationId": "addProductImages",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "an array with information of the executed operations.",
+                  "items": {}
+                }
+              }
+            }
+          }
+        },
+        "description": "Inserts a set of images into the Product multi-image field.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id ",
+            "description": "web service ID of the product record to upload the images to ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "files",
+            "description": "an array of images to upload, each array entry must contain two fields: name and content (base64 encoded",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getFieldAutocomplete": {
+      "get": {
+        "summary": "Autocompletion.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "Map of records found, indexed by their CRMID with the value of a Map of the returnfields fields.",
+                  "items": {}
+                },
+                "examples": {
+                  "example-1": {
+                    "value": [
+                      {
+                        "crmid": "14x8381",
+                        "crmfields": {
+                          "productname": "Cooking pads",
+                          "vendor_part_no": "12"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getFieldAutocomplete",
+        "description": "Executes a search in the list of fields of a module for the given term with the selected operator.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "term",
+            "description": "search term",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "filter",
+            "description": "operator to use: eq, neq, startswith, endswith, contains ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "searchinmodule",
+            "description": "valid module to search in ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "fields",
+            "description": "comma-separated list of fields to search in .",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "returnfields",
+            "description": "comma-separated list of fields to return as result, if empty fields will be returned",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "description": "maximum number of values to return",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getReferenceAutocomplete": {
+      "get": {
+        "summary": "autocompletion and searching.",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "crmid": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "ID of the record ."
+                      },
+                      "crmname": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "entity name of the module followed by the module name."
+                      },
+                      "crmmodule": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "module the record belongs to."
+                      }
+                    },
+                    "required": [
+                      "crmid",
+                      "crmname",
+                      "crmmodule"
+                    ]
+                  }
+                },
+                "examples": {
+                  "example-1": {
+                    "value": [
+                      {
+                        "crmid": "11x8385",
+                        "crmname": "coreBOSwsTest :: Organizations",
+                        "crmmodule": "Accounts"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getReferenceAutocomplete",
+        "description": "Executes a search in the entity fields of the given modules for the given term with the selected operator.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "term",
+            "description": "search term ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "filter",
+            "description": "operator to use: eq, neq, startswith, endswith, contains .",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "searchinmodules",
+            "description": "comma-separated list of modules to search in.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "limit",
+            "description": "maximum number of values to return.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/getRelatedRecordsThroughModule": {
+      "post": {
+        "summary": "List records related with a module.",
+        "operationId": "getRelatedRecordsThroughModule",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "required": [],
+                    "properties": {}
+                  }
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "description": " In some use cases, it is useful to be able to get a list of records related at a second level. For example, we want to get a list of project tasks related to an account going through the Projects related to the account.Returns a list of Object records related to the given record passing through another related module.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "web service ID of the main record ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "module",
+            "description": "module of the record in ID .",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "relatedModule",
+            "description": "second level related module name we want to get the records from ",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "bridgeModule",
+            "description": "direct related module name that connects the ID with the related module",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "array"
+            },
+            "in": "query",
+            "name": "queryParameters",
+            "description": " additional parameters supported by the getRelatedRecords method",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/convertlead": {
+      "post": {
+        "summary": "lead conversion",
+        "operationId": "convertlead",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "Array with all the information of the new objects created.",
+                  "items": {}
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "sessionName": "fef54295fdb92649e542",
+                      "userId": "19x1",
+                      "version": "0.22",
+                      "vtigerVersion": "5.5.0"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Permits the conversion of a lead into an account, contact and potential. This service is used by the application itself when converting leads.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "id",
+            "description": "$entityvalues is an array, Parameters:\t   id: $entityvalues is an array. Consult the modules/Leads/LeadConvertToEntities.php to see an example.",
+            "required": true
+          }
+        ]
+      }
+    },
+    "/extendsession": {
+      "post": {
+        "summary": "Renewing token expiration time.",
+        "operationId": "extendsession",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "",
+                  "properties": {
+                    "sessionName": {
+                      "type": "string",
+                      "description": "validated session ID to use in subsequent calls."
+                    },
+                    "userId": {
+                      "type": "string",
+                      "description": "web service ID of the connected user."
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "coreBOS and web service version numbers."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "When a user has already logged in and has an active session, it is useful to be able to use that same session to access the web service API without forcing the user to log in again. This method will detect the existing session and return a validated login session for the web service API."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccessToken": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "APILoginResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "result"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "sessionName": {
+                "type": "string",
+                "example": "c4ad8d35e8caa5f69e0e"
+              },
+              "userId": {
+                "type": "string",
+                "example": "19x5"
+              },
+              "version": {
+                "type": "string",
+                "example": "0.22"
+              },
+              "vtigerVersion": {
+                "type": "string",
+                "example": "5.5.0"
+              }
+            }
+          }
+        }
+      },
+      "APILogoutResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "result"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "successfull"
+              }
+            }
+          }
+        }
+      },
+      "APIResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "result"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "result": {
+            "type": "object"
+          }
+        }
+      },
+      "APIError": {
+        "type": "object",
+        "required": [
+          "success",
+          "error"
+        ],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
